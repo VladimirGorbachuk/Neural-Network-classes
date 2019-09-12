@@ -1,0 +1,87 @@
+import random
+from collections import namedtuple
+Neuron = namedtuple("Neuron",["weights","bias"])
+class Neural_Network:
+    def __init__ (self, n_layers=None, n_neurons = None, input_sample = None, n_out = None):
+        """
+        на вход примем число слоев в нейросети
+        и количества нейронов в каждом слое
+        в виде списка 0 - первый слой, 1 - второй итд
+        """
+        
+        self.neurons = n_neurons + [n_out]
+        self.layers = len (self.neurons)
+        self.input_length = len (input_sample)
+        self.weights_biases = None
+    def make_one_neuron (self,layer):
+        """
+        чтобы сделать нейрон нужно знать сколько
+        значений в него придет чтобы раскидать
+        количество коэффициентов (равно количеству
+        входных данных)и добавить 1 биас
+        
+        """
+        if layer >0:
+            n_inputs = self.neurons [layer-1]
+        else:
+            n_inputs = self.input_length
+        neuron = Neuron (weights = [random.random () for signals_and_bias
+                  in range (n_inputs)],bias = random.random ())
+        return neuron
+    def make_one_layer (self,layer):
+        """
+        теперь будем использовать встроенную функцию
+        для собирания отдельного нейрона для 
+        собирания отдельного слоя нейронной сети
+        """
+        neurons_in_layer = [self.make_one_neuron(layer) for neuron in range(self.neurons [layer])]
+        return neurons_in_layer
+        
+    def build_random_NN (self):
+        """
+        функция для послойной сборки теперь будет использовать
+        встроенную функцию для сборки одного слоя
+        """
+        all_neurons_in_NN = [self.make_one_layer (layer) for layer in range (self.layers)]
+        self.weights_biases = all_neurons_in_NN
+        return all_neurons_in_NN
+    def __repr__(self):
+       if self.weights_biases:
+           repres =""
+           for number_of_layer,layer in enumerate (self.weights_biases):
+               repres+= "layer number " + str (number_of_layer) + "\n"
+               repres += str (layer)
+               repres += "\n"
+           return repres
+       else:
+           return ("Empty_NN")
+    def matrix_mult_plus_bias_relu (self,input,layer_number = None):
+        output = []
+        for neuron in self.weights_biases[layer_number]:
+            product = neuron.bias
+            for number_of_scalar,scalar in enumerate (input):
+                product += neuron.weights [number_of_scalar]*scalar
+            output.append (self.relu (product))
+        return output
+
+    def calc_output (self,input):
+        for layer_number in range (self.layers):
+            input = self.matrix_mult_plus_bias_relu (input,layer_number = layer_number)        
+        return input
+        
+    def relu (self, product):
+        result = 0
+        if product > 0:
+            result = product
+        return result
+    
+
+NN = Neural_Network(n_layers = 3,n_neurons = [2,3,2], input_sample = [0.4,0.3],n_out = 3)
+print (NN.neurons)
+print (NN.layers)
+print ("до создания рандомной сети:")
+print (NN)
+NN.build_random_NN ()
+print ("после создания рандомной сети")
+print (NN)
+print (NN.calc_output ([0.2,0.7]))
